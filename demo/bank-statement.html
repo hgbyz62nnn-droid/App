@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGU Fintech — Statement Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --ink:#111827; --ink-soft:#4B5563; --line:#E5E7EB; --bg:#F3F4F6;
+    --brand:#0B3B36; --brand-2:#14B8A6; --credit:#0F9D58; --debit:#D93025;
+    --paper:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Inter',sans-serif; background:var(--bg); color:var(--ink);
+    padding:28px 12px;
+  }
+  .toolbar{
+    max-width:820px; margin:0 auto 16px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .toolbar .note{ font-size:12.5px; color:var(--ink-soft); }
+  .toolbar button{
+    background:var(--brand); color:#fff; border:none; padding:10px 18px; border-radius:8px;
+    font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .sheet{
+    max-width:820px; margin:0 auto; background:var(--paper); border-radius:10px;
+    box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden; position:relative;
+  }
+  .watermark{
+    position:absolute; top:42%; left:50%; transform:translate(-50%,-50%) rotate(-28deg);
+    font-size:64px; font-weight:800; color:rgba(11,59,54,.06); letter-spacing:4px;
+    pointer-events:none; white-space:nowrap; z-index:0;
+  }
+  .content{ position:relative; z-index:1; }
+  .header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding:32px 36px 20px; border-bottom:3px solid var(--brand);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .mark{
+    width:38px; height:38px; border-radius:9px; background:linear-gradient(135deg,var(--brand-2),var(--brand));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:16px;
+  }
+  .brand .name{ font-weight:800; font-size:17px; color:var(--brand); letter-spacing:.2px; }
+  .brand .sub{ font-size:10.5px; color:var(--ink-soft); }
+  .header .doc-title{ text-align:right; }
+  .doc-title h1{ font-size:15px; margin:0 0 4px; color:var(--ink); }
+  .doc-title span{ font-size:11.5px; color:var(--ink-soft); }
+
+  .meta-grid{
+    display:grid; grid-template-columns:1.2fr 1fr; gap:0; padding:22px 36px; border-bottom:1px solid var(--line);
+  }
+  .meta-block .label{ font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); margin-bottom:6px; font-weight:700;}
+  .meta-block .value{ font-size:13px; line-height:1.7; color:var(--ink); }
+  .meta-block + .meta-block{ text-align:right; }
+
+  .summary-row{
+    display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--line);
+  }
+  .summary-cell{
+    padding:18px 20px; border-left:1px solid var(--line);
+  }
+  .summary-cell:first-child{ border-left:none; }
+  .summary-cell .label{ font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-soft); font-weight:700; margin-bottom:6px;}
+  .summary-cell .amt{ font-size:16px; font-weight:800; }
+  .summary-cell .amt.credit{ color:var(--credit); }
+  .summary-cell .amt.debit{ color:var(--debit); }
+
+  table{ width:100%; border-collapse:collapse; }
+  thead th{
+    font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-soft); text-align:left;
+    padding:10px 36px; border-bottom:1px solid var(--line); font-weight:700; background:#FAFAFA;
+  }
+  thead th.num{ text-align:right; }
+  tbody td{ padding:11px 36px; font-size:12.5px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even){ background:#FCFCFD; }
+  td.num{ text-align:right; font-weight:700; white-space:nowrap; }
+  td.desc .primary{ font-weight:600; }
+  td.desc .secondary{ display:block; font-size:11px; color:var(--ink-soft); margin-top:1px; }
+  td.credit{ color:var(--credit); }
+  td.debit{ color:var(--debit); }
+  td.bal{ text-align:right; color:var(--ink-soft); font-size:12px; }
+
+  .closing-row td{ font-weight:800; border-top:2px solid var(--brand); background:#F7FBFA; }
+
+  .footer{
+    padding:20px 36px 30px; font-size:10.5px; color:var(--ink-soft); line-height:1.7;
+  }
+  .footer .flag{ font-weight:700; color:var(--brand); }
+
+  @media print{
+    body{ background:#fff; padding:0; }
+    .toolbar{ display:none; }
+    .sheet{ box-shadow:none; border-radius:0; max-width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span class="note">Sample statement — placeholder data, for layout/design demonstration only.</span>
+  <button onclick="downloadPdf()">Download PDF</button>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="watermark">SAMPLE</div>
+  <div class="content">
+    <div class="header">
+      <div class="brand">
+        <div class="mark">SG</div>
+        <div>
+          <div class="name">SGU Fintech</div>
+          <div class="sub">Digital Account Statement</div>
+        </div>
+      </div>
+      <div class="doc-title">
+        <h1>Account Statement</h1>
+        <span>Period: 01 Jul 2026 – 31 Jul 2026</span>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-block">
+        <div class="label">Account Holder</div>
+        <div class="value">
+          John M. Sample<br>
+          1 Demo Street, Sample Ward<br>
+          Sample City, 0000<br>
+          South Africa
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="label">Account Details</div>
+        <div class="value">
+          Account No: •••• •••• 0198<br>
+          Account Type: SGU Everyday Account<br>
+          Statement Date: 01 Aug 2026<br>
+          Currency: ZAR
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-row" id="summaryRow"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th class="num">Debit</th>
+          <th class="num">Credit</th>
+          <th class="num">Balance</th>
+        </tr>
+      </thead>
+      <tbody id="txBody"></tbody>
+    </table>
+
+    <div class="footer">
+      <div><span class="flag">SAMPLE STATEMENT — NOT A REAL FINANCIAL DOCUMENT.</span> Account holder, account number and all transactions on this page are fictional placeholder data generated solely to demonstrate SGU Fintech's statement layout and PDF export feature.</div>
+      <div style="margin-top:6px;">Generated for design review · SGU Fintech</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const openingBalance = 4820.15;
+
+const transactions = [
+  { date: '01 Jul 2026', primary: 'Salary — Sample Employer (Pty) Ltd', secondary: 'EFT credit', credit: 18500.00 },
+  { date: '02 Jul 2026', primary: 'Rent Payment — Sample Properties', secondary: 'Scheduled debit order', debit: 7200.00 },
+  { date: '03 Jul 2026', primary: 'Checkers Sample Mall', secondary: 'Card purchase', debit: 842.60 },
+  { date: '05 Jul 2026', primary: 'SGU Fintech Savings Pocket', secondary: 'Round-up transfer', debit: 150.00 },
+  { date: '08 Jul 2026', primary: 'Mobile Airtime — Sample Networks', secondary: 'Prepaid top-up', debit: 199.00 },
+  { date: '10 Jul 2026', primary: 'Freelance Invoice #0231', secondary: 'Incoming EFT', credit: 3400.00 },
+  { date: '14 Jul 2026', primary: 'Streaming Subscription', secondary: 'Recurring debit', debit: 159.00 },
+  { date: '18 Jul 2026', primary: 'Electricity — Sample Municipality', secondary: 'Prepaid meter', debit: 620.35 },
+  { date: '21 Jul 2026', primary: 'Fuel — Sample Fuel Station', secondary: 'Card purchase', debit: 780.00 },
+  { date: '24 Jul 2026', primary: 'Refund — Sample Online Store', secondary: 'Card reversal', credit: 249.99 },
+  { date: '27 Jul 2026', primary: 'Transfer to J. Doe', secondary: 'Instant EFT', debit: 500.00 },
+  { date: '30 Jul 2026', primary: 'Interest Earned', secondary: 'SGU Everyday Account', credit: 22.40 },
+];
+
+const fmt = n => n.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+let balance = openingBalance;
+let totalCredit = 0, totalDebit = 0;
+const rows = [];
+
+rows.push(`<tr>
+  <td>—</td>
+  <td class="desc"><span class="primary">Opening Balance</span></td>
+  <td class="num"></td><td class="num"></td>
+  <td class="bal">R ${fmt(balance)}</td>
+</tr>`);
+
+for (const t of transactions) {
+  if (t.credit) { balance += t.credit; totalCredit += t.credit; }
+  if (t.debit)  { balance -= t.debit;  totalDebit  += t.debit; }
+  rows.push(`<tr>
+    <td>${t.date}</td>
+    <td class="desc"><span class="primary">${t.primary}</span><span class="secondary">${t.secondary}</span></td>
+    <td class="num debit">${t.debit ? fmt(t.debit) : ''}</td>
+    <td class="num credit">${t.credit ? fmt(t.credit) : ''}</td>
+    <td class="bal">R ${fmt(balance)}</td>
+  </tr>`);
+}
+
+rows.push(`<tr class="closing-row">
+  <td colspan="4">Closing Balance — 31 Jul 2026</td>
+  <td class="bal">R ${fmt(balance)}</td>
+</tr>`);
+
+document.getElementById('txBody').innerHTML = rows.join('');
+
+document.getElementById('summaryRow').innerHTML = `
+  <div class="summary-cell">
+    <div class="label">Opening Balance</div>
+    <div class="amt">R ${fmt(openingBalance)}</div>
+  </div>
+  <div class="summary-cell">
+    <div class="label">Total Credits</div>
+    <div class="amt credit">+ R ${fmt(totalCredit)}</div>
+  </div>
+  <div class="summary-cell">
+    <div class="label">Total Debits</div>
+    <div class="amt debit">− R ${fmt(totalDebit)}</div>
+  </div>
+  <div class="summary-cell">
+    <div class="label">Closing Balance</div>
+    <div class="amt">R ${fmt(balance)}</div>
+  </div>
+`;
+
+function downloadPdf(){
+  const el = document.getElementById('sheet');
+  html2pdf().set({
+    margin: 0,
+    filename: 'sgu-fintech-sample-statement.pdf',
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+  }).from(el).save();
+}
+</script>
+
+</body>
+</html>
