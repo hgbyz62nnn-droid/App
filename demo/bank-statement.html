@@ -119,7 +119,7 @@
       </div>
       <div class="doc-title">
         <h1>Account Statement</h1>
-        <span>Period: 01 Jul 2026 – 31 Jul 2026</span>
+        <span>Period: 15 Aug 2026 – 15 Sep 2026</span>
       </div>
     </div>
 
@@ -138,7 +138,7 @@
         <div class="value">
           Account No: 1304 584 674<br>
           Account Type: SGU Everyday Account<br>
-          Statement Date: 01 Aug 2026<br>
+          Statement Date: 15 Sep 2026<br>
           Currency: ZAR
         </div>
       </div>
@@ -170,18 +170,18 @@
 const openingBalance = 4820.15;
 
 const transactions = [
-  { date: '01 Jul 2026', primary: 'Salary — Sample Employer (Pty) Ltd', secondary: 'EFT credit', credit: 18500.00 },
-  { date: '02 Jul 2026', primary: 'Rent Payment — Sample Properties', secondary: 'Scheduled debit order', debit: 7200.00 },
-  { date: '03 Jul 2026', primary: 'Checkers Sample Mall', secondary: 'Card purchase', debit: 842.60 },
-  { date: '05 Jul 2026', primary: 'SGU Fintech Savings Pocket', secondary: 'Round-up transfer', debit: 150.00 },
-  { date: '08 Jul 2026', primary: 'Mobile Airtime — Sample Networks', secondary: 'Prepaid top-up', debit: 199.00 },
-  { date: '10 Jul 2026', primary: 'Freelance Invoice #0231', secondary: 'Incoming EFT', credit: 3400.00 },
-  { date: '14 Jul 2026', primary: 'Streaming Subscription', secondary: 'Recurring debit', debit: 159.00 },
-  { date: '18 Jul 2026', primary: 'Electricity — Sample Municipality', secondary: 'Prepaid meter', debit: 620.35 },
-  { date: '21 Jul 2026', primary: 'Fuel — Sample Fuel Station', secondary: 'Card purchase', debit: 780.00 },
-  { date: '24 Jul 2026', primary: 'Refund — Sample Online Store', secondary: 'Card reversal', credit: 249.99 },
-  { date: '27 Jul 2026', primary: 'Transfer to J. Doe', secondary: 'Instant EFT', debit: 500.00 },
-  { date: '30 Jul 2026', primary: 'Interest Earned', secondary: 'SGU Everyday Account', credit: 22.40 },
+  { date: '15 Aug 2026', primary: 'Salary — Sample Employer (Pty) Ltd', secondary: 'EFT credit', credit: 18500.00 },
+  { date: '16 Aug 2026', primary: 'Rent Payment — Sample Properties', secondary: 'Scheduled debit order', debit: 7200.00 },
+  { date: '17 Aug 2026', primary: 'Checkers Sample Mall', secondary: 'Card purchase', debit: 842.60 },
+  { date: '19 Aug 2026', primary: 'SGU Fintech Savings Pocket', secondary: 'Round-up transfer', debit: 150.00 },
+  { date: '22 Aug 2026', primary: 'Mobile Airtime — Sample Networks', secondary: 'Prepaid top-up', debit: 199.00 },
+  { date: '24 Aug 2026', primary: 'Freelance Invoice #0231', secondary: 'Incoming EFT', credit: 3400.00 },
+  { date: '28 Aug 2026', primary: 'Streaming Subscription', secondary: 'Recurring debit', debit: 159.00 },
+  { date: '01 Sep 2026', primary: 'Electricity — Sample Municipality', secondary: 'Prepaid meter', debit: 620.35 },
+  { date: '04 Sep 2026', primary: 'Fuel — Sample Fuel Station', secondary: 'Card purchase', debit: 780.00 },
+  { date: '07 Sep 2026', primary: 'Refund — Sample Online Store', secondary: 'Card reversal', credit: 249.99 },
+  { date: '10 Sep 2026', primary: 'Transfer to J. Doe', secondary: 'Instant EFT', debit: 500.00 },
+  { date: '13 Sep 2026', primary: 'Interest Earned', secondary: 'SGU Everyday Account', credit: 22.40 },
 ];
 
 const fmt = n => n.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -210,7 +210,7 @@ for (const t of transactions) {
 }
 
 rows.push(`<tr class="closing-row">
-  <td colspan="4">Closing Balance — 31 Jul 2026</td>
+  <td colspan="4">Closing Balance — 15 Sep 2026</td>
   <td class="bal">R ${fmt(balance)}</td>
 </tr>`);
 
