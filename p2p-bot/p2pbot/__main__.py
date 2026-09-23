@@ -12,16 +12,22 @@ from .telegram_bot import ControlBot
 
 
 def setup_logging(log_dir) -> None:
-    log_dir.mkdir(parents=True, exist_ok=True)
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
-    file_handler = RotatingFileHandler(log_dir / "bot.log", maxBytes=5_000_000, backupCount=5, encoding="utf-8")
-    file_handler.setFormatter(fmt)
     console = logging.StreamHandler()
     console.setFormatter(fmt)
     root = logging.getLogger()
     root.setLevel(logging.INFO)
-    root.addHandler(file_handler)
     root.addHandler(console)
+    # The file log is a convenience; journald still has everything, so never crash over it.
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        file_handler = RotatingFileHandler(log_dir / "bot.log", maxBytes=5_000_000, backupCount=5, encoding="utf-8")
+    except OSError as exc:
+        root.warning("File logging disabled (%s); logging to journald only. Fix: chown -R p2pbot:p2pbot %s",
+                     exc, log_dir)
+    else:
+        file_handler.setFormatter(fmt)
+        root.addHandler(file_handler)
     # httpx logs every Telegram poll, including the bot token in the URL.
     logging.getLogger("httpx").setLevel(logging.WARNING)
 

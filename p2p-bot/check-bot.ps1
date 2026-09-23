@@ -16,7 +16,7 @@ $remote = @"
 set -u
 start="`$(date '+%Y-%m-%d %H:%M:%S')"
 echo '--- restart'
-systemctl restart p2p-bot && sleep 8
+systemctl restart p2p-bot && sleep 20  # long enough to catch a crash + auto-restart (RestartSec=10)
 echo "service: `$(systemctl is-active p2p-bot)"
 echo '--- warnings/errors since restart'
 journalctl -u p2p-bot --since "`$start" --no-pager -o cat | grep -E 'WARNING|ERROR|CRITICAL|Traceback|Missing required' || echo '(none)'

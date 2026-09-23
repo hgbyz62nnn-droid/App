@@ -9,6 +9,9 @@ Type=simple
 User=p2pbot
 Group=p2pbot
 WorkingDirectory=/opt/p2p-bot
+# "+" runs as root without the sandbox: make sure the writable dirs exist and belong to the bot user
+# (e.g. after someone ran the bot once as root and left root-owned files behind).
+ExecStartPre=+/bin/sh -c 'install -d -o p2pbot -g p2pbot /opt/p2p-bot/data /opt/p2p-bot/logs && chown -R p2pbot:p2pbot /opt/p2p-bot/data /opt/p2p-bot/logs'
 ExecStart=/opt/p2p-bot/.venv/bin/python -m p2pbot
 Restart=always
 RestartSec=10
@@ -18,7 +21,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/p2p-bot/data /opt/p2p-bot/logs
+ReadWritePaths=-/opt/p2p-bot/data -/opt/p2p-bot/logs
 
 [Install]
 WantedBy=multi-user.target
