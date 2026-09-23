@@ -85,7 +85,7 @@ powershell -ExecutionPolicy Bypass -File C:\p2p-bot\fill-env.ps1   # يسألك 
 powershell -ExecutionPolicy Bypass -File C:\p2p-bot\check-bot.ps1  # restart + فحص اللوج + تجربة Bybit وتليجرام
 ```
 
-الأسرار بتتكتب مخفية، ومش بتتطبع ولا بتتكتب على الديسك. على السيرفر، `python -m p2pbot.selftest` بيعمل نفس فحص الاتصال وبيبعت رسالة تجربة على تليجرام.
+الأسرار بتتقري من الـ clipboard: انسخ القيمة ودوس Enter. بيظهر طولها وآخر 4 حروف بس، والـ clipboard بيتمسح بعدها على طول، ومفيش حاجة بتتكتب على الديسك. على السيرفر، `python -m p2pbot.selftest` بيعمل نفس فحص الاتصال وبيبعت رسالة تجربة على تليجرام.
 
 ### اللوجات
 ```bash

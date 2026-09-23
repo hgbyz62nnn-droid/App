@@ -1,6 +1,7 @@
 <#
   fill-env.ps1 - asks for every .env value, then uploads .env to the server over SSH.
-  Secrets are typed hidden and are never printed or written to this PC's disk.
+  Secrets are read from the clipboard (copy, then press Enter); only their length and last 4
+  characters are shown, and the clipboard is cleared right after. Nothing is written to this PC's disk.
   DRY_RUN is always written as true.
 
   Run:  powershell -ExecutionPolicy Bypass -File C:\p2p-bot\fill-env.ps1
@@ -32,15 +33,30 @@ function Read-Plain([string]$Title, [string[]]$Help, [string]$Pattern = ".+", [s
     }
 }
 
+function Clear-ClipboardSafe {
+    # Windows PowerShell 5.1 rejects Set-Clipboard $null; fall back to piping nothing into clip.exe.
+    try { Set-Clipboard -Value $null -ErrorAction Stop } catch { cmd /c "echo off | clip" }
+}
+
+$script:usedSecrets = @()
+
 function Read-Secret([string]$Title, [string[]]$Help, [string]$Pattern = "\S+") {
+    # Pasting into a hidden Read-Host only keeps one character in some consoles, so read the clipboard instead.
     Show-Help $Title $Help
     while ($true) {
-        $secure = Read-Host "   $Title (hidden)" -AsSecureString
-        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-        try { $v = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr).Trim() }
-        finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
-        if ($v -match "^(?:$Pattern)$") { Write-Host "   received ($($v.Length) characters)"; return $v }
-        Write-Host "   Empty or invalid, try again." -ForegroundColor Yellow
+        Read-Host "   Copy $Title to the clipboard, then press Enter" | Out-Null
+        $v = "$(Get-Clipboard -Raw)".Trim()
+        if (-not $v) { Write-Host "   Clipboard is empty, copy the value and try again." -ForegroundColor Yellow; continue }
+        if ($v -notmatch "^(?:$Pattern)$") { Write-Host "   Clipboard doesn't look like a $Title, try again." -ForegroundColor Yellow; continue }
+        if ($script:usedSecrets -contains $v) { Write-Host "   That's the previous value again - copy the new one." -ForegroundColor Yellow; continue }
+        $tail = if ($v.Length -ge 8) { $v.Substring($v.Length - 4) } else { "????" }
+        Write-Host "   got $($v.Length) characters, ending in ...$tail"
+        $ok = (Read-Host "   Correct? [Y/n]").Trim()
+        if ($ok -and $ok -notmatch '^[yY]') { continue }
+        Clear-ClipboardSafe
+        Write-Host "   clipboard cleared."
+        $script:usedSecrets += $v
+        return $v
     }
 }
 
@@ -127,7 +143,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Upload failed (ssh exit code $LASTEXITCODE)." }
 } finally {
     $OutputEncoding = $prevEnc
-    $apiKey = $apiSecret = $tgToken = $content = $lines = $null
+    $apiKey = $apiSecret = $tgToken = $content = $lines = $script:usedSecrets = $null
     [GC]::Collect()
 }
 
