@@ -1,0 +1,24 @@
+[Unit]
+Description=P2P ad price bot
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=p2pbot
+Group=p2pbot
+WorkingDirectory=/opt/p2p-bot
+ExecStart=/opt/p2p-bot/.venv/bin/python -m p2pbot
+Restart=always
+RestartSec=10
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/p2p-bot/data /opt/p2p-bot/logs
+
+[Install]
+WantedBy=multi-user.target
