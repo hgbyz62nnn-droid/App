@@ -76,6 +76,17 @@ systemctl status p2p-bot
 ufw allow OpenSSH && ufw enable
 ```
 
+### ملء `.env` من ويندوز والتأكد إن البوت شغال
+
+من PowerShell على جهازك (بيستخدموا المفتاح `~\.ssh\id_ed25519_p2pbot`):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File C:\p2p-bot\fill-env.ps1   # يسألك عن كل قيمة ويرفع .env (DRY_RUN=true)
+powershell -ExecutionPolicy Bypass -File C:\p2p-bot\check-bot.ps1  # restart + فحص اللوج + تجربة Bybit وتليجرام
+```
+
+الأسرار بتتكتب مخفية، ومش بتتطبع ولا بتتكتب على الديسك. على السيرفر، `python -m p2pbot.selftest` بيعمل نفس فحص الاتصال وبيبعت رسالة تجربة على تليجرام.
+
 ### اللوجات
 ```bash
 journalctl -u p2p-bot -f          # لايف

@@ -150,3 +150,8 @@ def test_update_body_changes_only_price():
 def test_update_body_rejects_floating_ads():
     with pytest.raises(ExchangeError):
         build_update_body({**BYBIT_AD, "priceType": 1}, D("1"))
+
+
+def test_selftest_scrubs_secrets():
+    from p2pbot.selftest import scrub
+    assert scrub("bad token 123:ABC in url, sss", ["123:ABC", "", "s"]) == "bad token *** in url, sss"
