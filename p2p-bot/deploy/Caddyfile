@@ -1,0 +1,22 @@
+# Only HTTPS on 443. The certificate is obtained with the TLS-ALPN challenge on 443,
+# so port 80 stays closed. No access log: it would record the token header.
+{
+	auto_https disable_redirects
+}
+
+__DOMAIN__ {
+	tls {
+		issuer acme {
+			disable_http_challenge
+		}
+	}
+	request_body {
+		max_size 16KB
+	}
+	handle /hook/notify {
+		reverse_proxy 127.0.0.1:8081
+	}
+	handle {
+		respond 404
+	}
+}

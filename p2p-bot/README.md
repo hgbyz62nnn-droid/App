@@ -131,3 +131,24 @@ p2pbot/
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest -q
 ```
+
+## Webhook الإشعارات: الخطوة A (capture mode بس)
+
+`p2p-capture` بيستقبل إشعارات الموبايل من MacroDroid وبيحفظها في `data/notifications.jsonl` على السيرفر، والملف ملك `p2pbot` وصلاحياته `600`. في المرحلة دي مفيش مطابقة ولا رسايل تليجرام. الهدف بس نجمع أمثلة حقيقية نبني منها الـ parser.
+
+- الشكل: `MacroDroid ──HTTPS:443──> Caddy ──> 127.0.0.1:8081 (p2p-capture)`.
+- **Caddy** بيعمل HTTPS بشهادة Let's Encrypt. بياخد الشهادة عن طريق تحدي TLS-ALPN على بورت 443، فبورت 80 بيفضل مقفول. مابيسجّلش access log عشان الـ token مايتكتبش في اللوج.
+- **الحماية:** لازم هيدر `X-Webhook-Token` يطابق `WEBHOOK_TOKEN` في `.env`، وإلا بيرجع 401 ومابيتحفظش حاجة. أي مسار تاني بيرجع 404، وأي body أكبر من 16KB بيرجع 413.
+- **البيانات اللي بيقبلها:** JSON، أو form، أو query parameters، في الحقول `app` و`title` و`text` و`time` و`source` و`test`. لو الـ JSON باظ بسبب علامات تنصيص في نص الإشعار، بيتحفظ كما هو في حقل `raw`.
+- **اللوج:** بيسجّل اسم التطبيق وطول النص بس، مش محتوى الإشعار.
+
+**النشر** (من PowerShell، بعد ما تحدّث `C:\p2p-bot` من الـ repo):
+```powershell
+powershell -ExecutionPolicy Bypass -File C:\p2p-bot\deploy-capture.ps1
+```
+السكريبت بيرفع الكود، ويعمل `WEBHOOK_TOKEN` لو مش موجود، ويسطّب Caddy والخدمة، ويفتح 443 في ufw. بعدها بيعمل اختبار كامل عبر HTTPS، وبيطبع الرابط والتوكن **مرة واحدة** عشان MacroDroid.
+
+**عدد الإشعارات اللي اتجمعت:**
+```powershell
+ssh -i $env:USERPROFILE\.ssh\id_ed25519_p2pbot root@78.141.212.182 "wc -l /opt/p2p-bot/data/notifications.jsonl"
+```
